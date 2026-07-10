@@ -8,11 +8,12 @@ function getAxisStatus(ratioLeft: number, ratioRight: number): '편중' | '균�
 }
 
 // 순수 규칙 기반 팀 분석 엔진 함수
+// 순수 규칙 기반 팀 분석 엔진 함수 (성별 다원성 인지 결합 스마트 알고리즘 적용)
 export function analyzeTeam(teamInput: TeamInput): TeamAnalysis {
-  // 1. 전체 구성원 목록 통합 (팀장 1명 + 팀원 M명)
+  // 1. 전체 구성원 목록 통합 (팀장 1명 + 팀원 M명, 성별 속성 결합)
   const allMembers = [
-    { name: teamInput.leaderName, mbti: teamInput.leaderMbti.toUpperCase() },
-    ...teamInput.members.map(m => ({ name: m.name, mbti: m.mbti.toUpperCase() }))
+    { name: teamInput.leaderName, mbti: teamInput.leaderMbti.toUpperCase(), gender: teamInput.leaderGender },
+    ...teamInput.members.map(m => ({ name: m.name, mbti: m.mbti.toUpperCase(), gender: m.gender }))
   ];
 
   const totalCount = allMembers.length;
@@ -22,14 +23,19 @@ export function analyzeTeam(teamInput: TeamInput): TeamAnalysis {
     return createEmptyAnalysis();
   }
 
-  // 2. 4대 선호 지표 카운트 초기화
+  // 2. 4대 선호 지표 및 성별 카운트 초기화
   let eCount = 0, iCount = 0;
   let sCount = 0, nCount = 0;
   let tCount = 0, fCount = 0;
   let jCount = 0, pCount = 0;
+  let maleCount = 0, femaleCount = 0;
 
-  // 인원 세기
+  // 인원 및 성별 순회 카운팅
   allMembers.forEach(member => {
+    // 성별 가중치 연산
+    if (member.gender === 'male') maleCount++;
+    if (member.gender === 'female') femaleCount++;
+
     const chars = member.mbti.split('');
     if (chars.includes('E')) eCount++;
     if (chars.includes('I')) iCount++;
@@ -181,6 +187,31 @@ export function analyzeTeam(teamInput: TeamInput): TeamAnalysis {
     leaderAttitudes.push(`팀원들의 판단 준거 우선순위와 리더의 결론 도출 알고리즘 스타일이 대조되므로 의사결정의 이면에 깔린 "논리적 근거 체크표" 혹은 "우려되는 팀원 수용성 지표"를 서로 가감 없이 꺼내어 설명하는 수평적 태도가 신뢰를 다집니다.`);
   }
 
+  // 4.3. 🌟 지능형 성별-MBTI(특히 T/F 축) 상호연계 분석 알고리즘 가동
+  let genderInsight = '';
+
+  if (maleCount > 0 && femaleCount > 0) {
+    if (tf.status === '편중' && tf.ratioLeft >= 70) {
+      // T 성향 편중 & 남녀 성별 균형형
+      genderInsight = `성별 다원성 측면에서 남성(${maleCount}명)과 여성(${femaleCount}명)이 조화롭게 어우러져 있으나, 인지 판단 축이 논리 중심(T: ${tf.ratioLeft}%)으로 크게 수렴되어 있습니다. 의견 대립 시 대화 템포가 다소 메마르거나 건조해지기 쉬운 경향이 있습니다. 안건의 정합성을 파고들기 전에 "오늘 발안하신 관점이 우리 기획의 허점을 채우는 데 정말 유용했습니다." 처럼 정성적인 '노력의 승인 구절'을 먼저 명확하게 꺼내주는 소통 윤활유를 가미해 보세요.`;
+    } else if (tf.status === '편중' && tf.ratioRight >= 70) {
+      // F 성향 편중 & 남녀 성별 균형형
+      genderInsight = `성별 다양성 기반의 입체적 비율이 탄탄히 공유되는 속에서, 소통 성향이 따뜻한 공감과 배려(F: ${tf.ratioRight}%) 중심으로 두텁게 활성화되어 있습니다. 서로 오해가 번질까 배려하여 생산적 쓴소리를 서로 아끼기 쉬운 경향이 관찰됩니다. 관계의 신뢰를 유지하면서 기획 품질을 다지기 위해, 개별 인격을 비판하는 것이 아닌 질문에 기초해 논리 구성을 세련되게 검토해 나가는 '회의용 논리 안테나(레드팀 역할군)'를 회의마다 무작위로 한 명 지정해 보는 시도를 추천해 드립니다.`;
+    } else {
+      // T-F 균형 및 성별 균형형 (최상의 골디락스 존)
+      genderInsight = `본 조직은 성별 다원성(남녀 비율 균형)과 판단 의사결정 축(T/F: ${tf.ratioLeft}% 대 ${tf.ratioRight}%)의 균형이 아주 긴밀하고 유기적으로 맞물려 공존하고 있습니다. 논리적 완성도를 추구하는 차가운 머리(T)와 동료의 수용 정서를 다스리는 뜨거운 가슴(F)이 상호 보완적으로 작용할 최상의 인적 토대를 품고 있으니, 양단 소통 조언을 수평적으로 경청하시는 것만으로도 소통 리스크가 눈에 띄게 절감될 것입니다.`;
+    }
+  } else {
+    // 성별 쏠림이 강한 조직이거나 일방적 구성의 경우
+    if (tf.status === '편중' && tf.ratioLeft >= 70) {
+      genderInsight = `의사결정 준거가 극단적으로 논리적 유용성과 타당성(T: ${tf.ratioLeft}%)에 집중되어 있고 단일 성별 성조가 우세하게 흐르다 보니, 갈등 국면 시 공감 영역이 다소 생략되어 구성원 간의 직무적 번아웃이나 사소한 언어 장벽이 감정 대립으로 번질 가능성이 존재합니다. "수고가 참 많으셨습니다."라는 기초적인 정서 공조 표현을 회의 서두에 장식해 보는 그라운드 룰을 마련하십시오.`;
+    } else if (tf.status === '편중' && tf.ratioRight >= 70) {
+      genderInsight = `서로를 향한 따뜻한 인화와 부드러운 우호성(F: ${tf.ratioRight}%)이 지대하게 충만한 가운데 인지 구조가 수렴되어 있어 팀 안정감이 돋보이나, 쓴소리를 유예하여 결과 품질의 오류나 마감 누수를 방치할 우려가 관찰됩니다. 친밀할수록 '업무 지적'과 '인격 비판'을 칼처럼 명확히 분리하여, 서로를 성장시키는 건설적인 비평이 흘러가도록 격려하는 문화를 설계해 보길 바랍니다.`;
+    } else {
+      genderInsight = `다원적 의사결정 균형(T-F 공존)이 흐르고 있으나 단일 구성의 성조를 지니고 있는 편입니다. 판단 축의 유연성은 탄탄하므로, 마주하는 상황(업무 위주의 미팅 vs 사기 진작 위주의 워크숍)에 따라 이성적 지표와 정서적 지표의 볼륨을 수동으로 조절해가며 대화 세션을 꾸려 가시는 조율 요령을 실천해 보세요.`;
+    }
+  }
+
   // 5. 한 줄 요약 조합 (지표 분포에 따른 보편적 한 줄 연계 가이드)
   let summary = `팀원 상호 간 소통 지표를 렌더링하여 협업 약속을 조율하는 가이드라인입니다.`;
   if (ei.status === '편중' && tf.status === '편중') {
@@ -192,7 +223,7 @@ export function analyzeTeam(teamInput: TeamInput): TeamAnalysis {
   }
 
   // 6. 면책 공고 정의
-  const disclaimer = '⚠️ 본 분석은 MBTI 모델에 투영된 보편적인 상호 작용 선호 경향성을 다루며, 개인의 절대적 성격 낙인, 직무 업무 역량 예측, 승진 적격 여부 또는 인적 성과를 진단 및 재단하는 근거로 절대로 활용될 수 없습니다.';
+  const disclaimer = '⚠️ 본 분석은 MBTI 모델과 입력 성별에 투영된 보편적인 상호 작용 선호 경향성을 다루며, 개인의 절대적 성격 낙인, 특정 성별의 능력 고정관념화, 직무 업무 역량 예측, 혹은 승진/성과 배치의 인사 근거로 절대로 활용될 수 없습니다.';
 
   // 7. 데이터 무결성 조립 및 리턴
   return {
@@ -203,7 +234,12 @@ export function analyzeTeam(teamInput: TeamInput): TeamAnalysis {
     leaderAttitudes: leaderAttitudes.slice(0, 3),
     actionGuides,
     teamAgreements: teamAgreements.slice(0, 5),
-    disclaimer
+    disclaimer,
+    genderStats: {
+      maleCount,
+      femaleCount,
+      insight: genderInsight
+    }
   };
 }
 

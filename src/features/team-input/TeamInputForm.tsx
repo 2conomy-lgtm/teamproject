@@ -24,8 +24,8 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
   // 기본 입력 폼 내부용 로컬 멤버 목록
   const [teamName, setTeamName] = useState<string>('');
   const [formMembers, setFormMembers] = useState<TeamMember[]>([
-    { id: '1', name: '', mbti: '' },
-    { id: '2', name: '', mbti: '' }
+    { id: '1', name: '', mbti: '', gender: 'male' },
+    { id: '2', name: '', mbti: '', gender: 'female' }
   ]);
   const [leaderId, setLeaderId] = useState<string>(''); // 팀장 고유 ID
   const [errors, setErrors] = useState<FormError>({});
@@ -95,8 +95,8 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
       setAllowLocalStorage(false);
       setTeamName('');
       setFormMembers([
-        { id: '1', name: '', mbti: '' },
-        { id: '2', name: '', mbti: '' }
+        { id: '1', name: '', mbti: '', gender: 'male' },
+        { id: '2', name: '', mbti: '', gender: 'female' }
       ]);
       setLeaderId('');
       setErrors({});
@@ -112,7 +112,7 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
       return;
     }
     const newId = Date.now().toString();
-    const updated = [...formMembers, { id: newId, name: '', mbti: '' }];
+    const updated = [...formMembers, { id: newId, name: '', mbti: '', gender: 'male' as const }];
     setFormMembers(updated);
     updateAndSave(teamName, leaderId, updated);
   };
@@ -134,18 +134,18 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
   };
 
   // 필드 업데이트 핸들러
-  const handleMemberChange = (id: string, field: 'name' | 'mbti', value: string) => {
+  const handleMemberChange = (id: string, field: 'name' | 'mbti' | 'gender', value: string) => {
     const normalizedValue = field === 'mbti' ? value.toUpperCase() : value;
     const updated = formMembers.map(m => m.id === id ? { ...m, [field]: normalizedValue } : m);
-    setFormMembers(updated);
-    updateAndSave(teamName, leaderId, updated);
+    setFormMembers(updated as TeamMember[]);
+    updateAndSave(teamName, leaderId, updated as TeamMember[]);
 
     // 에러 실시간 소멸
     setErrors(prev => {
       const next = { ...prev };
       if (next.members && next.members[id]) {
         const memberErr = { ...next.members[id] };
-        delete memberErr[field];
+        delete (memberErr as any)[field];
         if (Object.keys(memberErr).length === 0) {
           delete next.members[id];
         } else {
@@ -159,10 +159,10 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
   // 데모 불러오기
   const handleLoadSample = () => {
     const sampleMembers = [
-      { id: 'sample-1', name: '민수', mbti: 'ENTJ' },
-      { id: 'sample-2', name: '지수', mbti: 'INFP' },
-      { id: 'sample-3', name: '도현', mbti: 'ESTJ' },
-      { id: 'sample-4', name: '하은', mbti: 'ISFJ' }
+      { id: 'sample-1', name: '민수', mbti: 'ENTJ', gender: 'male' as const },
+      { id: 'sample-2', name: '지수', mbti: 'INFP', gender: 'female' as const },
+      { id: 'sample-3', name: '도현', mbti: 'ESTJ', gender: 'male' as const },
+      { id: 'sample-4', name: '하은', mbti: 'ISFJ', gender: 'female' as const }
     ];
     setTeamName('아폴로 스튜디오');
     setFormMembers(sampleMembers);
@@ -177,8 +177,8 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
     if (window.confirm('작성 중인 데이터를 모두 리셋하시겠습니까?')) {
       setTeamName('');
       const defaultMembers = [
-        { id: 'reset-1', name: '', mbti: '' },
-        { id: 'reset-2', name: '', mbti: '' }
+        { id: 'reset-1', name: '', mbti: '', gender: 'male' as const },
+        { id: 'reset-2', name: '', mbti: '', gender: 'female' as const }
       ];
       setFormMembers(defaultMembers);
       setLeaderId('');
@@ -261,31 +261,34 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
     // 검증 성공 단계
     const leaderMember = formMembers.find(m => m.id === leaderId)!;
     const remainingMembers = formMembers.filter(m => m.id !== leaderId);
-
+ 
     // [보안 핵심] "익명화(이름 마스킹) 옵션" 작동: 실제 입력된 텍스트 대신 '팀장', '팀원 1', '팀원 2' 순서로 가공
     let finalLeaderName = leaderMember.name.trim();
     let finalMembers = remainingMembers.map(m => ({
       id: m.id,
       name: m.name.trim(),
-      mbti: m.mbti
+      mbti: m.mbti,
+      gender: m.gender
     }));
-
+ 
     if (isAnonymized) {
       finalLeaderName = '팀장';
       finalMembers = remainingMembers.map((m, index) => ({
         id: m.id,
         name: `팀원 ${index + 1}`,
-        mbti: m.mbti
+        mbti: m.mbti,
+        gender: m.gender
       }));
     }
-
+ 
     const resultInput: TeamInput = {
       teamName: teamName.trim(),
       leaderName: finalLeaderName,
       leaderMbti: leaderMember.mbti,
+      leaderGender: leaderMember.gender, // 팀장의 성별 보존 이식
       members: finalMembers
     };
-
+ 
     setErrors({});
     setValidatedOutput(resultInput);
     onAnalyze(resultInput); // 변환 완료된 소독 데이터 상위 전달
@@ -393,7 +396,7 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
                     style={{ display: 'flex', gap: '15px', alignItems: 'flex-start', background: '#f9f9f9', padding: '15px', borderRadius: '10px', border: memberErr ? '1px solid #d0021b' : '1px solid #eaeaea', flexWrap: 'wrap' }}
                   >
                     {/* 이름 필드 */}
-                    <div style={{ flex: '2 1 200px', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ flex: '2 1 180px', display: 'flex', flexDirection: 'column' }}>
                       <label htmlFor={`input-member-name-${member.id}`} style={{ fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '6px', color: '#555' }}>
                         이름/별칭
                       </label>
@@ -402,7 +405,7 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
                         type="text"
                         value={member.name}
                         onChange={(e) => handleMemberChange(member.id, 'name', e.target.value)}
-                        placeholder="가급적 별칭 권장 (예: 지니, 피터)"
+                        placeholder="가급적 별칭 권장"
                         aria-required="true"
                         aria-invalid={!!memberErr?.name}
                         aria-describedby={memberErr?.name ? `error-member-name-${member.id}` : undefined}
@@ -415,8 +418,65 @@ export const TeamInputForm: React.FC<TeamInputFormProps> = ({ onAnalyze }) => {
                       )}
                     </div>
 
+                    {/* 🏢 [성별 선택] 라벤더 바이올렛 테마의 미니멀리즘 세그먼트 라디오 컨트롤 */}
+                    <div style={{ flex: '1 1 110px', display: 'flex', flexDirection: 'column' }}>
+                      <span id={`lbl-member-gender-${member.id}`} style={{ fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '6px', color: '#555' }}>
+                        성별
+                      </span>
+                      <div 
+                        role="radiogroup" 
+                        aria-labelledby={`lbl-member-gender-${member.id}`}
+                        style={{ display: 'flex', gap: '3px', background: '#eaeaea', padding: '3px', borderRadius: '8px', minHeight: '44px', boxSizing: 'border-box' }}
+                      >
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={member.gender === 'male'}
+                          onClick={() => handleMemberChange(member.id, 'gender', 'male')}
+                          style={{
+                            flex: 1,
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '0.85rem',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            backgroundColor: member.gender === 'male' ? '#ffffff' : 'transparent',
+                            color: member.gender === 'male' ? '#7c3aed' : '#555555',
+                            boxShadow: member.gender === 'male' ? '0 2px 4px rgba(0,0,0,0.06)' : 'none',
+                            transition: 'all 0.2s',
+                            minHeight: '38px',
+                            padding: 0
+                          }}
+                        >
+                          남성
+                        </button>
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={member.gender === 'female'}
+                          onClick={() => handleMemberChange(member.id, 'gender', 'female')}
+                          style={{
+                            flex: 1,
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '0.85rem',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            backgroundColor: member.gender === 'female' ? '#ffffff' : 'transparent',
+                            color: member.gender === 'female' ? '#7c3aed' : '#555555',
+                            boxShadow: member.gender === 'female' ? '0 2px 4px rgba(0,0,0,0.06)' : 'none',
+                            transition: 'all 0.2s',
+                            minHeight: '38px',
+                            padding: 0
+                          }}
+                        >
+                          여성
+                        </button>
+                      </div>
+                    </div>
+
                     {/* MBTI 성향 선택 */}
-                    <div style={{ flex: '1.2 1 150px', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ flex: '1.2 1 140px', display: 'flex', flexDirection: 'column' }}>
                       <label htmlFor={`select-member-mbti-${member.id}`} style={{ fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '6px', color: '#555' }}>
                         성향 (MBTI)
                       </label>

@@ -1,63 +1,77 @@
-/* Team Lens 프리미엄 디자인 시스템 (App.css) */
+/* 
+  Team Lens 미니멀리즘 프리미엄 디자인 시스템 (App.css) 
+  Theme: Minimalist Clean White with Lavender Violet Points
+*/
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Outfit:wght@400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
 
 :root {
-  --primary: #4a90e2;
-  --primary-hover: #357abd;
-  --accent: #2563eb;
-  --success: #047857;
-  --warning: #d97706;
-  --error: #d0021b;
-  --background: #f4f6f9;
-  --card-bg: rgba(255, 255, 255, 0.85);
-  --border: rgba(229, 231, 235, 0.8);
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
+  --primary: #7c3aed;         /* 기본 보라색 (라벤더 바이올렛) */
+  --primary-hover: #6d28d9;   /* 마우스 올릴 때 짙은 보라 */
+  --primary-light: #f5f3ff;   /* 강조용 부드러운 보라 배경 */
+  --accent: #6366f1;          /* 인디고 보라 연관 색 */
+  --success: #059669;         /* 에메랄드 */
+  --warning: #d97706;         /* 앰버 */
+  --error: #dc2626;           /* 레드 */
+  --background: #ffffff;      /* 깨끗한 순백색 배경 */
+  --card-bg: #ffffff;
+  --border: #e5e7eb;          /* 아주 가볍고 정갈한 연한 회색 보더 */
+  --text-main: #374151;       /* 눈이 편안한 짙은 회색 글자 */
+  --text-muted: #6b7280;      /* 정돈된 중간 회색 */
+  --text-title: #111827;      /* 가독성이 뚜렷한 검은 회색 */
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  background-attachment: fixed;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--background);
   color: var(--text-main);
-  overflow-x: hidden; /* 가로 스크롤 완전 제거 */
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
-/* 가로 스크롤 방지용 전역 레이아웃 제어 */
+/* 전역 레이아웃 제어 */
 * {
   box-sizing: border-box;
 }
 
-/* 포커스 링 전역 커스텀 (웹 접근성 AA 준수) */
+/* 📝 출판물 스타일의 깔끔한 양쪽 정렬 */
+p, li, .desc, .text-justify, .analysis-result-panel p, .dashboard-container p, .dashboard-container li {
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.62;
+  color: var(--text-main);
+}
+
+/* 웹 접근성 AA 준수 포커스 링 */
 *:focus-visible {
-  outline: 3px solid var(--accent) !important;
+  outline: 3px solid var(--primary) !important;
   outline-offset: 2px !important;
 }
 
-/* 글래스모피즘 프리미엄 카드 공통 */
-.glass-panel {
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* 🌿 콤팩트 미니멀 패널 스타일 */
+.glass-panel, .minimal-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.01);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.glass-panel:hover {
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.08);
+.glass-panel:hover, .minimal-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-/* 반응형 그리드 */
+/* 반응형 미니멀리즘 그리드 */
 .grid-2-col {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
+  gap: 20px;
 }
 
 @media (max-width: 768px) {
@@ -66,19 +80,106 @@ body {
   }
 }
 
-/* 폼 인풋 및 컨트롤 가로 스크롤 방지 */
+/* 입체 엠블럼 간소화 및 미니멀리즘 로고 */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  margin-bottom: 25px;
+}
+
+.gbsa-logo-link {
+  display: inline-block;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.gbsa-logo-link:hover {
+  transform: scale(1.02);
+}
+
+.gbsa-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  padding: 6px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.gbsa-logo-img {
+  height: 35px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.logo-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin: 10px 0 5px 0;
+  color: var(--text-title);
+  line-height: 1.2;
+}
+
+.logo-subtitle {
+  font-size: 1.15rem;
+  margin: 6px 0 0 0;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+/* 기술 스택 전용 미니멀 배지 */
+.tech-badge-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.tech-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  background-color: var(--primary-light);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* 간단한 앱 소개 상자 */
+.intro-box {
+  background-color: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  text-align: center;
+}
+
+/* 폼 인풋 정규화 */
 input, select {
   max-width: 100%;
 }
 
-/* 애니메이션 */
+/* 애니메이션 최소화 */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .analysis-result-panel {
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 /* ==================================================== */
@@ -91,7 +192,6 @@ input, select {
     font-size: 11pt !important;
   }
 
-  /* 화면 제어 요소(폼, 버튼, 초기화 등) 전면 완전 은닉 */
   .no-print,
   button,
   form,
@@ -101,30 +201,24 @@ input, select {
     display: none !important;
   }
 
-  /* 인쇄 전용 머리말 활성화 */
   .print-only {
     display: block !important;
   }
 
-  /* 인쇄 시 글래스모피즘 효과 제거 및 흑백 고화질 고정 */
-  .glass-panel {
+  .glass-panel, .minimal-card {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
     padding: 0 !important;
     margin-bottom: 25px !important;
-    page-break-inside: avoid; /* 카드 내부에서 용지가 잘리지 않게 조정 */
+    page-break-inside: avoid;
   }
 
-  /* 인쇄 시 배경 게이지 바 테두리 선 처리 */
-  div[style*="height: 24px"] {
+  div[style*="height: 24px"], div[style*="height: 30px"] {
     border: 1px solid #000 !important;
     background: #f0f0f0 !important;
   }
 
-  /* 강점/주의점 등 인쇄 레이아웃 간격 정렬 */
   .grid-2-col {
     display: block !important;
   }

@@ -4,12 +4,14 @@ export interface TeamMember {
   id: string; // 동적 리스트 추가/삭제 및 고유 렌더링 키를 위한 UUID 또는 고유문자열
   name: string; // 팀원 별칭/이름
   mbti: string; // 16가지 표준 MBTI (ex. INFP, ENTJ)
+  gender: 'male' | 'female'; // 성별 정보 ('male': 남성, 'female': 여성)
 }
 
 export interface TeamInput {
   teamName: string; // 팀 이름
   leaderName: string; // 팀장 별칭/이름
   leaderMbti: string; // 팀장 MBTI
+  leaderGender: 'male' | 'female'; // 팀장 성별 정보 ('male': 남성, 'female': 여성)
   members: TeamMember[]; // 팀원 리스트 (최소 2인 이상 필수)
 }
 
@@ -43,4 +45,9 @@ export interface TeamAnalysis {
   actionGuides: ActionGuides; // 5대 비즈니스 맥락별 구체적 가이드
   teamAgreements: string[]; // 팀이 합의할 5개의 협업 약속 (Core Ground Rules)
   disclaimer: string; // 데이터 윤리 및 경고 가이드라인 면책 문구
+  genderStats?: {
+    maleCount: number;
+    femaleCount: number;
+    insight: string; // 성별 다원성과 MBTI 성향(특히 T/F)의 상호작용 분석 통찰 조언
+  };
 }
