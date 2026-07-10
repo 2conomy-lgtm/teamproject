@@ -1,0 +1,136 @@
+/* Team Lens 프리미엄 디자인 시스템 (App.css) */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Outfit:wght@400;600;800&display=swap');
+
+:root {
+  --primary: #4a90e2;
+  --primary-hover: #357abd;
+  --accent: #2563eb;
+  --success: #047857;
+  --warning: #d97706;
+  --error: #d0021b;
+  --background: #f4f6f9;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --border: rgba(229, 231, 235, 0.8);
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  overflow-x: hidden; /* 가로 스크롤 완전 제거 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 가로 스크롤 방지용 전역 레이아웃 제어 */
+* {
+  box-sizing: border-box;
+}
+
+/* 포커스 링 전역 커스텀 (웹 접근성 AA 준수) */
+*:focus-visible {
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 2px !important;
+}
+
+/* 글래스모피즘 프리미엄 카드 공통 */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-panel:hover {
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.08);
+}
+
+/* 반응형 그리드 */
+.grid-2-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .grid-2-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 폼 인풋 및 컨트롤 가로 스크롤 방지 */
+input, select {
+  max-width: 100%;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.analysis-result-panel {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* ==================================================== */
+/* 🖨️ 인쇄 최적화 스타일링 (Print CSS)                 */
+/* ==================================================== */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt !important;
+  }
+
+  /* 화면 제어 요소(폼, 버튼, 초기화 등) 전면 완전 은닉 */
+  .no-print,
+  button,
+  form,
+  .input-section,
+  input[type="checkbox"],
+  footer {
+    display: none !important;
+  }
+
+  /* 인쇄 전용 머리말 활성화 */
+  .print-only {
+    display: block !important;
+  }
+
+  /* 인쇄 시 글래스모피즘 효과 제거 및 흑백 고화질 고정 */
+  .glass-panel {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
+    margin-bottom: 25px !important;
+    page-break-inside: avoid; /* 카드 내부에서 용지가 잘리지 않게 조정 */
+  }
+
+  /* 인쇄 시 배경 게이지 바 테두리 선 처리 */
+  div[style*="height: 24px"] {
+    border: 1px solid #000 !important;
+    background: #f0f0f0 !important;
+  }
+
+  /* 강점/주의점 등 인쇄 레이아웃 간격 정렬 */
+  .grid-2-col {
+    display: block !important;
+  }
+
+  .grid-2-col > div {
+    margin-bottom: 25px !important;
+    page-break-inside: avoid;
+  }
+}
